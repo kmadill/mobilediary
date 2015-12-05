@@ -261,6 +261,7 @@ function removeEntry(entryId) {
 
 	request.onsuccess = function(event){
 		console.log('Entry removed');	
+		window.location = "index.html";
 	}	
 }
 
