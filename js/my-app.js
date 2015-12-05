@@ -10,73 +10,72 @@ var mainView = mobilediary.addView('.view-main', {
     dynamicNavbar: true
 });
 
+mobilediary.onPageInit('new-entry', function (page) {
+	// Get Formatted Current Date
+	Date.prototype.toDateInputValue = (function() {
+		var local = new Date(this);
+		local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+		return local.toJSON().slice(0,10);
+	});
+
+	// Display Current Date in Date Field
+	$('#datePicker').val(new Date().toDateInputValue());
+});
+
 $(document).ready(function(){
     document.addEventListener('deviceready', onDeviceReady, false);
 });
 
 function onDeviceReady(){
-    // Display quick note
-getQuickNote();
-
-mobilediary.onPageInit('index', function (page) {
-   	getQuickNote();
-});
-
-var request = indexedDB.open("mobilediary1", 1);
-
-request.onupgradeneeded = function(event){
-	var db = event.target.result;
-
-	//Subjects table
-	if(!db.objectStoreNames.contains("subjects")){
-		var os = db.createObjectStore("subjects", {keyPath: 'id', autoIncrement:true});
-
-		os.createIndex("title", "title", {unique:false});
-	}
-
-	//Entries table
-	if(!db.objectStoreNames.contains("entries")){
-		var os = db.createObjectStore("entries", {keyPath: 'id', autoIncrement:true});
-
-		os.createIndex("title", "title", {unique:false});
-		os.createIndex("subject", "subject", {unique:false});
-		os.createIndex("date", "date", {unique:false});
-		os.createIndex("body", "body", {unique:false});
-	}
-}
-
-request.onsuccess = function(event){
-	console.log('Success: Database opened');
-	db = event.target.result;
-
-	//Get all subjects
-	getSubjects();
+	    // Display quick note
+	getQuickNote();
 
 	mobilediary.onPageInit('index', function (page) {
-   		getSubjects();
+	   	getQuickNote();
 	});
 
-	mobilediary.onPageInit('new-entry', function (page) {
-   		getSubjectList();
-	});
+	var request = indexedDB.open("mobilediary1", 1);
 
-	mobilediary.onPageInit('new-entry', function (page) {
-   		// Get Formatted Current Date
-   		Date.prototype.toDateInputValue = (function() {
-	        var local = new Date(this);
-	        local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
-	        return local.toJSON().slice(0,10);
-	    });
+	request.onupgradeneeded = function(event){
+		var db = event.target.result;
 
-	   // Display Current Date in Date Field
-	   $('#datePicker').val(new Date().toDateInputValue());
-	});
+		//Subjects table
+		if(!db.objectStoreNames.contains("subjects")){
+			var os = db.createObjectStore("subjects", {keyPath: 'id', autoIncrement:true});
 
-}
+			os.createIndex("title", "title", {unique:false});
+		}
 
-request.onerror = function(event){
-	console.log('Error: Database not opened');
-}
+		//Entries table
+		if(!db.objectStoreNames.contains("entries")){
+			var os = db.createObjectStore("entries", {keyPath: 'id', autoIncrement:true});
+
+			os.createIndex("title", "title", {unique:false});
+			os.createIndex("subject", "subject", {unique:false});
+			os.createIndex("date", "date", {unique:false});
+			os.createIndex("body", "body", {unique:false});
+		}
+	}
+
+	request.onsuccess = function(event){
+		console.log('Success: Database opened');
+		db = event.target.result;
+
+		//Get all subjects
+		getSubjects();
+
+		mobilediary.onPageInit('index', function (page) {
+	   		getSubjects();
+		});
+
+		mobilediary.onPageInit('new-entry', function (page) {
+	   		getSubjectList();
+		});
+	}
+
+	request.onerror = function(event){
+		console.log('Error: Database not opened');
+	}
 }
 
 
@@ -262,7 +261,7 @@ function removeEntry(entryId) {
 	request.onsuccess = function(event){
 		console.log('Entry removed');	
 		window.location = "index.html";
-		
+
 	}	
 }
 
